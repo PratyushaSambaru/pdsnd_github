@@ -178,6 +178,57 @@ def subscriber_stats(df):
     print('-'*40)
 
 
+    print('\nCalculating Subscriber Stats...\n')
+    start_time = time.time()
+    
+    #Average Trip Duration of subscribers
+    avg_trip_duration_subscribers = df[df['User Type'] == 'Subscriber']['Trip Duration'].mean()
+    print("\nAverage Trip Duration of Subscribers:", avg_trip_duration_subscribers)
+   
+    #Average Trip Duration of non-subscribers
+    avg_trip_duration_customers = df[df['User Type'] == 'Customer']['Trip Duration'].mean()
+    print("Average Trip Duration of Non-Subscribers:", avg_trip_duration_customers)
+
+    #Percentage of subscribers vs non-subscribers. 
+    total_users = len(df)
+    subscribers = len(df[df['User Type'] == 'Subscriber'])
+    non_subscribers = len(df[df['User Type'] == 'Customer'])
+    percent_subscribers = (subscribers / total_users) * 100
+    percent_non_subscribers = (non_subscribers / total_users) * 100
+    print("\nPercentage of Subscribers:", percent_subscribers)
+    print("Percentage of Non-Subscribers:", percent_non_subscribers)
+    
+    # Most popular route taken by non-subscribers
+    if 'Start Station' in df and 'End Station' in df:
+        popular_route_non_subscribers = df[df['User Type'] == 'Customer'].groupby(['Start Station', 'End Station']).size().idxmax()
+        # Most popular route taken by subscribers
+        popular_route_subscribers = df[df['User Type'] == 'Subscriber'].groupby(['Start Station', 'End Station']).size().idxmax()
+
+        if popular_route_non_subscribers == popular_route_subscribers:
+            print("\nMost Popular Route is the Same for Subscribers and Non-Subscribers:")
+            print(popular_route_non_subscribers)
+        else:
+            print("\nMost Popular Route is Different for Subscribers and Non-Subscribers:")
+            print("Route for Subscribers:", popular_route_subscribers)
+            print("Route for Non-Subscribers:", popular_route_non_subscribers)
+    
+    print("\nThis took %s seconds." % (time.time() - start_time))
+    print('-'*40)
+
+def display_raw_data(df):
+    """Displays raw data upon user request."""
+    start_index = 0
+    while True:
+        raw_inp = input('\nWould you like to see 5 lines of raw data? Enter yes or no.\n')
+        raw = raw_inp.lower().strip()
+        if raw == 'yes':
+            print(df.iloc[start_index:start_index + 5])
+            start_index += 5
+        elif raw == 'no':
+            break
+        else:
+            print("Invalid input. Please enter 'yes' if you'd like to see raw data and 'no'otherwise.")
+ 
 def main():
     while True:
         city, month, day = get_filters()
